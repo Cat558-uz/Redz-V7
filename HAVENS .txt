@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerMouse = Player:GetMouse()
 
-local splib = {
+local havens = {
 	Themes = {
 		Red = {
 			["Color Hub 1"] = ColorSequence.new({
@@ -1028,8 +1028,8 @@ local isPC = not UserInputService.TouchEnabled and UserInputService.KeyboardEnab
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = isPC and ViewportSize.Y / 550 or ViewportSize.Y / 425
 
-local Settings = splib.Settings
-local Flags = splib.Flags
+local Settings = havens.Settings
+local Flags = havens.Flags
 
 local SettingsFile = "sp library.json"
 local LoadedToggles = {}
@@ -1054,7 +1054,7 @@ end
 
 local function SaveCfg(filename)
     local data = {}
-    for flag, obj in pairs(splib.Flags) do
+    for flag, obj in pairs(havens.Flags) do
         if obj.Save then
             data[flag] = obj.Value
         end
@@ -1067,7 +1067,7 @@ local function LoadCfg(filename)
         local ok, data = pcall(HttpService.JSONDecode, HttpService, readfile(filename .. ".json"))
         if ok and type(data) == "table" then
             for flag, value in pairs(data) do
-                local obj = splib.Flags[flag]
+                local obj = havens.Flags[flag]
                 if obj and obj.Set then
                     obj:Set(value)
                     obj.Value = value
@@ -1081,7 +1081,7 @@ LoadCfg("sp library")
 
 local SetProps, SetChildren, InsertTheme, Create do
 	InsertTheme = function(Instance, Type)
-		table.insert(splib.Instances, {
+		table.insert(havens.Instances, {
 			Instance = Instance,
 			Type = Type
 		})
@@ -1130,9 +1130,9 @@ local function Save(file)
 			local decode = HttpService:JSONDecode(readfile(file))
 			
 			if type(decode) == "table" then
-				if rawget(decode, "UISize") then splib.Save["UISize"] = decode["UISize"] end
-				if rawget(decode, "TabSize") then splib.Save["TabSize"] = decode["TabSize"] end
-				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then splib.Save["Theme"] = decode["Theme"] end
+				if rawget(decode, "UISize") then havens.Save["UISize"] = decode["UISize"] end
+				if rawget(decode, "TabSize") then havens.Save["TabSize"] = decode["TabSize"] end
+				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then havens.Save["Theme"] = decode["Theme"] end
 			end
 		end
 	end
@@ -1198,7 +1198,7 @@ local Funcs = {} do
 	end
 end
 
-local Connections, Connection = {}, splib.Connection do
+local Connections, Connection = {}, havens.Connection do
 	local function NewConnectionList(List)
 		if type(List) ~= "table" then return end
 		
@@ -1284,10 +1284,10 @@ if isfile("sp library.json") then
   local ok,data = pcall(HttpService.JSONDecode, HttpService, readfile("sp library.json"))
   if ok and type(data)=="table" then saved = data end
 end
-splib.Save = {
-  UISize  = saved.UISize  or splib.Save.UISize,
-  TabSize = saved.TabSize or splib.Save.TabSize,
-  Theme   = saved.Theme   or splib.Save.Theme,
+havens.Save = {
+  UISize  = saved.UISize  or havens.Save.UISize,
+  TabSize = saved.TabSize or havens.Save.TabSize,
+  Theme   = saved.Theme   or havens.Save.Theme,
 }
 
 local bindConnections = {}
@@ -1303,11 +1303,11 @@ if oldGui then
     end
     table.clear(bindConnections)
 
-    if splib and type(splib.ClearAllBinds) == "function" then
-        splib:ClearAllBinds()
+    if havens and type(havens.ClearAllBinds) == "function" then
+        havens:ClearAllBinds()
     end
-    if shouldClearToggles and splib and type(splib.ClearAllToggles) == "function" then
-        splib:ClearAllToggles()
+    if shouldClearToggles and havens and type(havens.ClearAllToggles) == "function" then
+        havens:ClearAllToggles()
     end
 
     oldGui:Destroy()
@@ -1426,7 +1426,7 @@ local function MakeDrag(Instance)
 end
 
 local function VerifyTheme(Theme)
-	for name,_ in pairs(splib.Themes) do
+	for name,_ in pairs(havens.Themes) do
 		if name == Theme then
 			return true
 		end
@@ -1440,14 +1440,14 @@ local function SaveJson(FileName, save)
 	end
 end
 
-local Theme = splib.Themes[splib.Save.Theme]
+local Theme = havens.Themes[havens.Save.Theme]
 
 local function AddEle(Name, Func)
-	splib.Elements[Name] = Func
+	havens.Elements[Name] = Func
 end
 
 local function Make(Ele, Instance, props, ...)
-	local Element = splib.Elements[Ele](Instance, props, ...)
+	local Element = havens.Elements[Ele](Instance, props, ...)
 	return Element
 end
 
@@ -1630,7 +1630,7 @@ local function GetColor(Instance)
 end
 
 -- /////////// --
-function splib:GetIcon(index)
+function havens:GetIcon(index)
 	if type(index) ~= "string" or index:find("rbxassetid://") or #index == 0 then
 		return index
 	end
@@ -1653,15 +1653,15 @@ function splib:GetIcon(index)
 	return firstMatch or index
 end
 
-function splib:SetTheme(NewTheme)
+function havens:SetTheme(NewTheme)
 	if not VerifyTheme(NewTheme) then return end
 	
-	splib.Save.Theme = NewTheme
-	SaveJson("sp library.json", splib.Save)
-	Theme = splib.Themes[NewTheme]
+	havens.Save.Theme = NewTheme
+	SaveJson("sp library.json", havens.Save)
+	Theme = havens.Themes[NewTheme]
 	
 	Connection:FireConnection("ThemeChanged", NewTheme)
-	table.foreach(splib.Instances, function(_,Val)
+	table.foreach(havens.Instances, function(_,Val)
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
 		elseif Val.Type == "Frame" then
@@ -1680,7 +1680,7 @@ function splib:SetTheme(NewTheme)
 	end)
 end
 
-function splib:SetScale(NewScale)
+function havens:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
@@ -1693,7 +1693,7 @@ local RainbowMainFrameDefault
 local RainbowTitleDefault
 local RainbowSubTitleDefault
 
-function splib:MakeWindow(Configs)
+function havens:MakeWindow(Configs)
 
     ToggleEnabled = (Configs.Toggle == nil and Configs.EnableToggle == nil) 
        or (Configs.Toggle == true or Configs.EnableToggle == true)
@@ -1707,7 +1707,7 @@ function splib:MakeWindow(Configs)
     RainbowSubTitleDefault = Configs.RainbowSubTitleDefault or Configs.RainbowSubTitle or false
 
 
-function splib:MakeWindow(Configs)
+function havens:MakeWindow(Configs)
 
     local WTitle = Configs[1] or Configs.Name or Configs.Title or "SP Lib v2"
     local WMiniText = Configs[2] or Configs.SubTitle or Configs.SubName or "by : SP Hub"
@@ -1821,7 +1821,7 @@ function splib:MakeWindow(Configs)
     return Window
 end
 	
-	local UISizeX, UISizeY = unpack(splib.Save.UISize)
+	local UISizeX, UISizeY = unpack(havens.Save.UISize)
 local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
     Size = UDim2.fromOffset(UISizeX * 0.8, UISizeY * 0.8),
     Position = UDim2.new(0.5, -UISizeX * 0.4, 0.5, -UISizeY * 0.4),
@@ -1928,7 +1928,7 @@ local MainCorner = Make("Corner", MainFrame, UDim.new(0, 10))
 
 	
 	local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
-		Size = UDim2.new(0, splib.Save.TabSize, 1, -TopBar.Size.Y.Offset),
+		Size = UDim2.new(0, havens.Save.TabSize, 1, -TopBar.Size.Y.Offset),
 		ScrollBarImageColor3 = Theme["Color Theme"],
 		Position = UDim2.new(0, 0, 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
@@ -2076,21 +2076,21 @@ if isPC then
     ControlSize2.Position = UDim2.new(0, originalSizeX, 1, 0)
     ControlSize()
 
-    if splib.Flags["sidebarHover"] and splib.Flags["sidebarHover"].Value then
+    if havens.Flags["sidebarHover"] and havens.Flags["sidebarHover"].Value then
         enableSidebarHover()
     end
 end
 
 ConnectSave(ControlSize1, function()
     if not Minimized then
-        splib.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
-        SaveJson("sp library.json", splib.Save)
+        havens.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
+        SaveJson("sp library.json", havens.Save)
     end
 end)
 
 ConnectSave(ControlSize2, function()
-    splib.Save.TabSize = MainScroll.Size.X.Offset
-    SaveJson("sp library.json", splib.Save)
+    havens.Save.TabSize = MainScroll.Size.X.Offset
+    SaveJson("sp library.json", havens.Save)
 end)
 
 
@@ -2141,17 +2141,17 @@ local function CloseUI()
     end
     table.clear(bindConnections)
 
-    if splib.ClearAllBinds then
-        splib:ClearAllBinds()
+    if havens.ClearAllBinds then
+        havens:ClearAllBinds()
     end
-    if shouldClearToggles and splib.ClearAllToggles then
-        splib:ClearAllToggles()
+    if shouldClearToggles and havens.ClearAllToggles then
+        havens:ClearAllToggles()
     end
 
     ScreenGui:Destroy()
 end
 
-function splib:Destroy()
+function havens:Destroy()
 CloseUI()
 end
 
@@ -2542,9 +2542,9 @@ end)
 	end
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
-			splib.Tabs[TabSelect].func:Enable()
+			havens.Tabs[TabSelect].func:Enable()
 		else
-			for _,Tab in pairs(splib.Tabs) do
+			for _,Tab in pairs(havens.Tabs) do
 				if Tab.Cont == TabSelect.Cont then
 					Tab.func:Enable()
 				end
@@ -2565,7 +2565,7 @@ function Window:MakeTab(paste, Configs)
         return nil
     end
 		
-		TIcon = splib:GetIcon(TIcon)
+		TIcon = havens:GetIcon(TIcon)
 		if not TIcon:find("rbxassetid://") or TIcon:gsub("rbxassetid://", ""):len() < 6 then
 			TIcon = false
 		end
@@ -2669,7 +2669,7 @@ local function Tabs()
     end
     Container.Parent = Containers
     Container.Size = UDim2.new(1, 0, 1, 150)
-    table.foreach(splib.Tabs, function(_,Tab)
+    table.foreach(havens.Tabs, function(_,Tab)
         if Tab.Cont ~= Container then
             Tab.func:Disable()
         end
@@ -2697,7 +2697,7 @@ end
 		TabSelect.Activated:Connect(Tabs)
 		
         FirstTab = true
-		table.insert(splib.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
+		table.insert(havens.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
 		Tab.Cont = Container
 		if not table.find(ContainerList, SettingTab) then
     table.insert(ContainerList, SettingTab)
@@ -2716,7 +2716,7 @@ function SettingTabHandler:Enable()
     end
     SettingTab.Parent = Containers
     SettingTab.Size = UDim2.new(1, 0, 1, 150)
-    table.foreach(splib.Tabs, function(_, tab)
+    table.foreach(havens.Tabs, function(_, tab)
         if tab.Cont ~= SettingTab then
             tab.func:Disable()
         end
@@ -2782,7 +2782,7 @@ end)
 			}), "Text")
 			
 			local Section = {}
-			table.insert(splib.Options, {type = "Section", Name = SectionName, func = Section})
+			table.insert(havens.Options, {type = "Section", Name = SectionName, func = Section})
 			function Section:Visible(Bool)
 				if Bool == nil then SectionFrame.Visible = not SectionFrame.Visible return end
 				SectionFrame.Visible = Bool
@@ -2906,7 +2906,7 @@ local function LoadBindFlag(flag)
     return nil
 end
 
-function splib:MakeNotification(Configs)
+function havens:MakeNotification(Configs)
 	if isNotificationCooldown then return end
 	isNotificationCooldown = true
 	task.delay(0.5, function()
@@ -3157,7 +3157,7 @@ Frame.Activated:Connect(function()
                 wait(.3)
 				recentlyBound = false
 
-				if Flag then splib.Flags[Flag] = state end
+				if Flag then havens.Flags[Flag] = state end
 				if state.Save then SaveCfg(game.GameId) end
 			end
 
@@ -3218,7 +3218,7 @@ table.insert(bindConnections, inputConnection)
     return objBind
 end
 
-function splib:ClearAllBinds()
+function havens:ClearAllBinds()
     print("Clearing Binds, count:", #Binds)
     for _, bind in ipairs(Binds) do
         if bind.Set then
@@ -3510,7 +3510,7 @@ end
     end
 
 if Flag then
-    splib.Flags[Flag] = {
+    havens.Flags[Flag] = {
         Value = Default,
         Save  = true,
         Set   = SetToggle,
@@ -3563,7 +3563,7 @@ end
     return Toggle
 end
 
-function splib:ClearAllToggles()
+function havens:ClearAllToggles()
     print("Clearing Toggles, count:", #Toggles)
     for _, entry in ipairs(Toggles) do
         if entry.object and type(entry.object.ForceCallback) == "function" then
@@ -5416,17 +5416,17 @@ Tab:AddDropdown({
         local offset = mobileOffset()
 
         if v == "Small" then
-            splib:SetScale(700 + offset)
+            havens:SetScale(700 + offset)
 
         elseif v == "Medium" then
-            splib:SetScale(600 + offset)
+            havens:SetScale(600 + offset)
 
         elseif v == "Large" then
-            splib:SetScale(500 + offset)
+            havens:SetScale(500 + offset)
 
         elseif v == "Custom" then
             -- طبّق القيمة الحالية للسلايدر فورًا
-            splib:SetScale(customUIsize + offset)
+            havens:SetScale(customUIsize + offset)
         end
     end,
     __force_container = SettingTab
@@ -5442,7 +5442,7 @@ Tab:AddSlider({
         customUIsize = value
         -- لو المستخدم حالياً مختار "Custom" طبّق التغيير مباشرة
         if uiSizeMode == "Custom" then
-            splib:SetScale(customUIsize + mobileOffset())
+            havens:SetScale(customUIsize + mobileOffset())
         end
     end,
     __force_container = SettingTab
@@ -5451,11 +5451,11 @@ Tab:AddSlider({
 Tab:AddDropdown({
     Name = "UI Theme",
     Options = {"Red", "Darker", "Dark", "Purple","NeonBlue", "Sunset", "Ocean", "RoseGold", "Matrix", "Green", "Orange", "Pink", "Gold", "Cyan"},
-    Default = splib.Save.Theme or "Red",
+    Default = havens.Save.Theme or "Red",
     Callback = function(selectedTheme)
-        splib:SetTheme(selectedTheme)
-        splib.Save.Theme = selectedTheme
-        SaveJson("sp library.json", splib.Save)
+        havens:SetTheme(selectedTheme)
+        havens.Save.Theme = selectedTheme
+        SaveJson("sp library.json", havens.Save)
     end,
     __force_container = SettingTab
 })
@@ -5609,4 +5609,4 @@ Tab:AddToggle({
 	return Window
 end
 
-return splib
+return havens
