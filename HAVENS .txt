@@ -1031,7 +1031,7 @@ local UIScale = isPC and ViewportSize.Y / 550 or ViewportSize.Y / 425
 local Settings = havens.Settings
 local Flags = havens.Flags
 
-local SettingsFile = "sp library.json"
+local SettingsFile = "havens libray.json"
 local LoadedToggles = {}
 if isfile(SettingsFile) then
     local ok, data = pcall(HttpService.JSONDecode, HttpService, readfile(SettingsFile))
@@ -1077,7 +1077,7 @@ local function LoadCfg(filename)
     end
 end
 
-LoadCfg("sp library")
+LoadCfg("havens libray")
 
 local SetProps, SetChildren, InsertTheme, Create do
 	InsertTheme = function(Instance, Type)
@@ -1137,7 +1137,7 @@ local function Save(file)
 		end
 	end
 	
-	pcall(Save, "sp library.json")
+	pcall(Save, "havens libray.json")
 end
 
 
@@ -1280,8 +1280,8 @@ local GetFlag, SetFlag, CheckFlag do
 end
 
 local saved = {}
-if isfile("sp library.json") then
-  local ok,data = pcall(HttpService.JSONDecode, HttpService, readfile("sp library.json"))
+if isfile("havens libray.json") then
+  local ok,data = pcall(HttpService.JSONDecode, HttpService, readfile("havens libray.json"))
   if ok and type(data)=="table" then saved = data end
 end
 havens.Save = {
@@ -1293,7 +1293,7 @@ havens.Save = {
 local bindConnections = {}
 local shouldClearToggles = false
 
-local GUI_NAME = "sp Library"
+local GUI_NAME = "havens libray"
 local oldGui = CoreGui:FindFirstChild(GUI_NAME)
 if oldGui then
     for _, conn in ipairs(bindConnections) do
@@ -1657,7 +1657,7 @@ function havens:SetTheme(NewTheme)
 	if not VerifyTheme(NewTheme) then return end
 	
 	havens.Save.Theme = NewTheme
-	SaveJson("sp library.json", havens.Save)
+	SaveJson("havens libray.json", havens.Save)
 	Theme = havens.Themes[NewTheme]
 	
 	Connection:FireConnection("ThemeChanged", NewTheme)
@@ -2084,13 +2084,13 @@ end
 ConnectSave(ControlSize1, function()
     if not Minimized then
         havens.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
-        SaveJson("sp library.json", havens.Save)
+        SaveJson("havens libray.json", havens.Save)
     end
 end)
 
 ConnectSave(ControlSize2, function()
     havens.Save.TabSize = MainScroll.Size.X.Offset
-    SaveJson("sp library.json", havens.Save)
+    SaveJson("havens libray.json", havens.Save)
 end)
 
 
@@ -2118,7 +2118,7 @@ local SettingButton = SetProps(CloseButton:Clone(), {
 
 	local MinimizeButton = SetProps(CloseButton:Clone(), {
 		Position = UDim2.new(1, -35, 0.5),
-		Image = "rbxassetid://10734896206",
+		Image = "rbxassetid://",
 		Name = "Minimize"
 	})
 	
@@ -5358,7 +5358,7 @@ end
 				Size = UDim2.new(1, -14, 0, 16),
 				AnchorPoint = Vector2.new(0.5, 1),
 				Position = UDim2.new(0.5, 0, 1, -7),
-				Text = "Join",
+				Text = "entrar",
 				Font = Enum.Font.GothamBold,
 				TextSize = 12,
 				TextColor3 = Color3.fromRGB(220, 220, 220),
@@ -5407,7 +5407,7 @@ local function mobileOffset()
 end
 
 Tab:AddDropdown({
-    Name = "UI Size",
+    Name = "UI tamanho Automatico",
     Options = {"Small", "Medium", "Large", "Custom"},
     Default = "Medium",
     Flag = "UISize",
@@ -5433,7 +5433,7 @@ Tab:AddDropdown({
 })
 
 Tab:AddSlider({
-    Name = "Custom Size",
+    Name = "tamanho Customizado",
     Min = 400,
     Max = 800,
     Default = customUIsize,
@@ -5449,13 +5449,13 @@ Tab:AddSlider({
 })
 
 Tab:AddDropdown({
-    Name = "UI Theme",
+    Name = "UI Tema",
     Options = {"Red", "Darker", "Dark", "Purple","NeonBlue", "Sunset", "Ocean", "RoseGold", "Matrix", "Green", "Orange", "Pink", "Gold", "Cyan"},
     Default = havens.Save.Theme or "Red",
     Callback = function(selectedTheme)
         havens:SetTheme(selectedTheme)
         havens.Save.Theme = selectedTheme
-        SaveJson("sp library.json", havens.Save)
+        SaveJson("havens libray.json", havens.Save)
     end,
     __force_container = SettingTab
 })
@@ -5542,7 +5542,7 @@ task.spawn(function()
 end)
 
 Tab:AddToggle({
-    Name = "Rainbow MainFrame",
+    Name = "colorido MainFrame",
     Flag = "RainbowMainFrame",
     Default = RainbowMainFrameDefault,
     Callback = function(enabled)
@@ -5578,7 +5578,7 @@ end)
 
 
 Tab:AddToggle({
-    Name = "Rainbow Title",
+    Name = "colorido Title",
     Flag = "RainbowTitle",
     Default = RainbowTitleDefault,
     Callback = function(enabled)
@@ -5591,7 +5591,7 @@ Tab:AddToggle({
 })
 
 Tab:AddToggle({
-    Name = "Rainbow SubTitle",
+    Name = "arco-íris SubTitle",
     Flag = "RainbowSubTitle",
     Default = RainbowSubTitleDefault,
     Callback = function(enabled)
